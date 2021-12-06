@@ -1,0 +1,25 @@
+Request:
+  type: object
+  properties:
+    files:
+      type: array
+      items:
+        $ref: '#File'
+    container:
+      type: string
+    part_id:
+      type: string
+    callback_url:
+      type: string
+File:
+  properties:
+    label:
+      type: string
+    filename:
+      type: string
+
+Response:
+  properties:
+    task_id:
+      type: string
+      format: uuid

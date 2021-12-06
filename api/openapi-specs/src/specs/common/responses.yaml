@@ -1,0 +1,13 @@
+OkResponse:
+  content:
+    application/json:
+      schema:
+        $ref: '#OkResponseBody'
+OkResponseBody:
+  required:
+    - success
+  properties:
+    success:
+      type: boolean
+      example: true
+

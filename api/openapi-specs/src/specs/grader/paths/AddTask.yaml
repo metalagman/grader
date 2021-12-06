@@ -1,0 +1,20 @@
+endpoint:
+  post:
+    tags:
+      - Tasks
+    summary: Create new grader task
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/AddTask.yaml#Request'
+    responses:
+      200:
+        allOf:
+          - $ref: '../../common/responses.yaml#OkResponse'
+          - content:
+              application/json:
+                schema:
+                  properties:
+                    data:
+                      $ref: '../schemas/AddTask.yaml#Response'
