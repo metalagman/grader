@@ -18,4 +18,4 @@ servers:
 #  - bearerAuth: []
 paths:
   /:
-    $ref: './paths/AddTask.yaml#endpoint'
+    $ref: './paths/AddTask.yaml#/Endpoint'

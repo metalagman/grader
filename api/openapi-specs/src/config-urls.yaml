@@ -1,2 +1,4 @@
+- name: "Panel"
+  url: "panel/openapi.yaml"
 - name: "Grader"
   url: "grader/openapi.yaml"

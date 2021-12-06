@@ -1,8 +1,9 @@
 Endpoint:
   post:
     tags:
-      - Tasks
-    summary: Create new grader task
+      - Auth
+    summary: Authorize user
+    security: []
     requestBody:
       content:
         application/json:
@@ -21,25 +22,13 @@ Endpoint:
 Request:
   type: object
   properties:
-    files:
-      type: array
-      items:
-        $ref: '#/File'
-    container:
+    username:
       type: string
-    part_id:
-      type: string
-    callback_url:
-      type: string
-File:
-  properties:
-    label:
-      type: string
-    filename:
+    password:
       type: string
 
 Response:
   properties:
-    task_id:
+    jwt:
       type: string
-      format: uuid
+      format: jwt
