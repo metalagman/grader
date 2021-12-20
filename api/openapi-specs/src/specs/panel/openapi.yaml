@@ -18,4 +18,6 @@ security:
   - bearerAuth: []
 paths:
   /auth/login:
-    $ref: './paths/Login.yaml#/Endpoint'
+    $ref: './paths/auth/Login.yaml#/Endpoint'
+  /auth/register:
+    $ref: './paths/auth/Register.yaml#/Endpoint'

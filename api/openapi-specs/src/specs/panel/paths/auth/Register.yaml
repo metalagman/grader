@@ -1,0 +1,34 @@
+Endpoint:
+  post:
+    tags:
+      - Auth
+    summary: Register user
+    security: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/Request'
+    responses:
+      200:
+        allOf:
+          - $ref: '../../../common/responses.yaml#/OkResponse'
+          - content:
+              application/json:
+                schema:
+                  properties:
+                    data:
+                      $ref: '#/Response'
+Request:
+  type: object
+  properties:
+    username:
+      type: string
+    password:
+      type: string
+
+Response:
+  properties:
+    jwt:
+      type: string
+      format: jwt

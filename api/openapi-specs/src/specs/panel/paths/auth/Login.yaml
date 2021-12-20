@@ -12,7 +12,7 @@ Endpoint:
     responses:
       200:
         allOf:
-          - $ref: '../../common/responses.yaml#/OkResponse'
+          - $ref: '../../../common/responses.yaml#/OkResponse'
           - content:
               application/json:
                 schema:
