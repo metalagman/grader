@@ -20,7 +20,6 @@ type Config struct {
 type Server struct {
 	listener net.Listener
 	server   *http.Server
-	handler  http.Handler
 	logger   zerolog.Logger
 }
 
@@ -28,7 +27,7 @@ type Option func(*Server)
 
 func WithHandler(h http.Handler) Option {
 	return func(server *Server) {
-		server.handler = h
+		server.server.Handler = h
 	}
 }
 
