@@ -10,6 +10,7 @@ import (
 	"grader/pkg/logger"
 	"grader/pkg/workerpool"
 	"io"
+	"os"
 )
 
 type Assessment struct {
@@ -44,12 +45,12 @@ func CheckAssessmentJob(assessment Assessment) workerpool.Job {
 		defer func(out io.ReadCloser) {
 			_ = out.Close()
 		}(out)
-		//io.Copy(os.Stdout, out)
+		io.Copy(os.Stdout, out)
 
 		l.Debug().Str("container_image", assessment.ContainerImage).Msg("Creating container")
 		resp, err := cli.ContainerCreate(ctx, &container.Config{
 			Image:        assessment.ContainerImage,
-			Cmd:          []string{assessment.PartID},
+			Cmd:          []string{"partId", assessment.PartID},
 			Tty:          true,
 			AttachStdout: true,
 			AttachStderr: true,
