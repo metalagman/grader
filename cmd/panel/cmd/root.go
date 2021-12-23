@@ -32,9 +32,9 @@ func Execute() {
 }
 
 func init() {
+	cobra.OnInitialize(initLogger)
 	cobra.OnInitialize(initDotEnv)
 	cobra.OnInitialize(initConfig)
-	cobra.OnInitialize(initLogger)
 
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Set high log verbosity")
@@ -62,6 +62,11 @@ pretty=0
 dsn=""
 [amqp]
 dsn=""
+[aws]
+bucket="yarcode-grader"
+region="eu-central-1"
+key=
+secret=
 `)
 	logger.CheckErr(viper.ReadConfig(bytes.NewBuffer(defaultConfig)))
 

@@ -8,12 +8,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	"grader/internal/app/panel/config"
+	"grader/pkg/aws"
 	"grader/pkg/httpserver"
 	"grader/pkg/logger"
 	mw "grader/pkg/middleware"
 	"grader/pkg/queue"
 	"grader/pkg/queue/amqp"
-	"net/http"
 )
 
 type App struct {
@@ -22,6 +22,7 @@ type App struct {
 	stop   chan struct{}
 	queue  queue.Queue
 	server *httpserver.Server
+	s3     *aws.S3
 }
 
 func New(cfg config.Config) (*App, error) {
@@ -56,6 +57,11 @@ func New(cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("amqp: %w", err)
 	}
 
+	s3, err := aws.NewS3(cfg.AWS)
+	if err != nil {
+		return nil, fmt.Errorf("s3: %w", err)
+	}
+
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 	r.Use(mw.Log(l))
@@ -71,6 +77,7 @@ func New(cfg config.Config) (*App, error) {
 		stop:   make(chan struct{}),
 		queue:  q,
 		server: hs,
+		s3:     s3,
 	}
 
 	go func() {
@@ -86,11 +93,4 @@ func New(cfg config.Config) (*App, error) {
 func (a *App) Stop() {
 	close(a.stop)
 	a.server.Stop()
-}
-
-func (a *App) router() http.Handler {
-	r := chi.NewRouter()
-	r.Use(middleware.Recoverer)
-
-	return r
 }
