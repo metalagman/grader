@@ -3,10 +3,14 @@ package app
 import (
 	"database/sql"
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	"grader/internal/app/panel/config"
+	"grader/pkg/httpserver"
 	"grader/pkg/logger"
+	mw "grader/pkg/middleware"
 	"grader/pkg/queue"
 	"grader/pkg/queue/amqp"
 	"net/http"
@@ -17,10 +21,12 @@ type App struct {
 	logger logger.Logger
 	stop   chan struct{}
 	queue  queue.Queue
-	server *http.Server
+	server *httpserver.Server
 }
 
 func New(cfg config.Config) (*App, error) {
+	l := *logger.Global()
+
 	db, err := sql.Open("mysql", cfg.DB.DSN)
 	if err != nil {
 		return nil, fmt.Errorf("db open: %w", err)
@@ -50,14 +56,22 @@ func New(cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("amqp: %w", err)
 	}
 
-	a := &App{
-		config: cfg,
-		logger: *logger.Global(),
-		stop:   make(chan struct{}),
-		queue:  q,
+	r := chi.NewRouter()
+	r.Use(middleware.Recoverer)
+	r.Use(mw.Log(l))
+
+	hs, err := httpserver.New(cfg.Server, r, httpserver.WithLogger(l.Logger))
+	if err != nil {
+		return nil, fmt.Errorf("http server: %w", err)
 	}
 
-	a.startServer(cfg.Server)
+	a := &App{
+		config: cfg,
+		logger: l,
+		stop:   make(chan struct{}),
+		queue:  q,
+		server: hs,
+	}
 
 	go func() {
 		<-a.stop
@@ -70,6 +84,13 @@ func New(cfg config.Config) (*App, error) {
 }
 
 func (a *App) Stop() {
-	a.stopServer()
 	close(a.stop)
+	a.server.Stop()
+}
+
+func (a *App) router() http.Handler {
+	r := chi.NewRouter()
+	r.Use(middleware.Recoverer)
+
+	return r
 }
