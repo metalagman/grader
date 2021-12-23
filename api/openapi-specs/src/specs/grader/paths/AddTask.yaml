@@ -1,8 +1,8 @@
 Endpoint:
   post:
     tags:
-      - Tasks
-    summary: Create new grader task
+      - Submission
+    summary: Create new grader submissions
     requestBody:
       content:
         application/json:
@@ -21,22 +21,31 @@ Endpoint:
 Request:
   type: object
   properties:
+    submission:
+      $ref: '#/Submission'
+Submission:
+  type: object
+  properties:
+    container_image:
+      type: string
+      example: "yarcode/grader:latest"
+    part_id:
+      type: string
+      example: "hw1"
+    postback_url:
+      type: string
     files:
       type: array
       items:
-        $ref: '#/File'
-    container:
-      type: string
-    part_id:
-      type: string
-    callback_url:
-      type: string
-File:
+        $ref: '#/SubmissionFile'
+SubmissionFile:
   properties:
-    label:
+    name:
       type: string
-    filename:
+      example: "foo.go"
+    url:
       type: string
+      example: "https://example.com/foo.go"
 
 Response:
   properties:
