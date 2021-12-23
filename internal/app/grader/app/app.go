@@ -30,8 +30,8 @@ func New(cfg config.Config) (*App, error) {
 	r.Use(middleware.Recoverer)
 	r.Use(mw.Log(l))
 
-	ah := handler.NewAssessmentHandler(wp)
-	r.Post("/assessments", ah.Check)
+	ah := handler.NewSubmissionHandler(wp)
+	r.Post("/submissions", ah.Check)
 
 	hs, err := httpserver.New(cfg.Server, httpserver.WithHandler(r), httpserver.WithLogger(l.Logger))
 	if err != nil {
