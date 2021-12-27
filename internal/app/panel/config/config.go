@@ -1,16 +1,17 @@
 package config
 
 import (
+	"grader/pkg/httpserver"
 	"grader/pkg/logger"
 	"grader/pkg/queue/amqp"
 	"time"
 )
 
 type Config struct {
-	Server ServerConfig   `mapstructure:"server"`
-	DB     DatabaseConfig `mapstructure:"db"`
-	AMQP   amqp.Config    `mapstructure:"amqp"`
-	Logger logger.Config  `mapstructure:"log"`
+	Server httpserver.Config `mapstructure:"server"`
+	DB     DatabaseConfig    `mapstructure:"db"`
+	AMQP   amqp.Config       `mapstructure:"amqp"`
+	Logger logger.Config     `mapstructure:"log"`
 }
 
 type ServerConfig struct {
