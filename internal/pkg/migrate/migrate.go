@@ -12,7 +12,7 @@ var embedMigrations embed.FS
 
 func init() {
 	goose.SetBaseFS(embedMigrations)
-	_ = goose.SetDialect("mysql")
+	_ = goose.SetDialect("postgres")
 }
 
 func Up(db *sql.DB) error {

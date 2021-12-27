@@ -65,8 +65,8 @@ dsn=""
 [aws]
 bucket="yarcode-grader"
 region="eu-central-1"
-key=
-secret=
+key=""
+secret=""
 `)
 	logger.CheckErr(viper.ReadConfig(bytes.NewBuffer(defaultConfig)))
 

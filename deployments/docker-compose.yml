@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    env_file:
+      - ../configs/env/database.env
+    ports:
+      - "25432:5432"
+    volumes:
+      - ./../tmp/postgres_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "28080:8080"

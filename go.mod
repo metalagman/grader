@@ -38,6 +38,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/lib/pq v1.10.4 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
