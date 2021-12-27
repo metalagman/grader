@@ -8,15 +8,14 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	"grader/internal/app/panel/config"
-	"grader/pkg/httpserver"
 	"grader/pkg/aws"
 	"grader/pkg/httpserver"
 	"grader/pkg/logger"
 	mw "grader/pkg/middleware"
 	"grader/pkg/queue"
 	"grader/pkg/queue/amqp"
-)
 	"grader/pkg/workerpool"
+)
 
 type App struct {
 	config  config.Config
@@ -66,7 +65,7 @@ func New(cfg config.Config) (*App, error) {
 	r.Use(middleware.Recoverer)
 	r.Use(mw.Log(l))
 
-	hs, err := httpserver.New(cfg.Server, httpserver.WithHandler(r), httpserver.WithLogger(l.Logger))
+	hs, err := httpserver.New(cfg.Server, r, httpserver.WithLogger(l.Logger))
 	if err != nil {
 		return nil, fmt.Errorf("http server: %w", err)
 	}
