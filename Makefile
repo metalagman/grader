@@ -17,7 +17,8 @@ generate:
 	@echo "Generating mocks"
 	go generate ./...
 
-build-all:
+.PHONY: build
+build:
 	@echo "Building the app to the .build dir"
 	go build -o .build/panel ./cmd/panel/*.go
 	go build -o .build/grader ./cmd/grader/*.go
