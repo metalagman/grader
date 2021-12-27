@@ -9,12 +9,14 @@ import (
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	"grader/internal/app/panel/config"
 	"grader/pkg/httpserver"
+	"grader/pkg/aws"
+	"grader/pkg/httpserver"
 	"grader/pkg/logger"
 	mw "grader/pkg/middleware"
 	"grader/pkg/queue"
 	"grader/pkg/queue/amqp"
-	"grader/pkg/workerpool"
 )
+	"grader/pkg/workerpool"
 
 type App struct {
 	config  config.Config
@@ -23,6 +25,7 @@ type App struct {
 	queue   queue.Queue
 	workers *workerpool.Pool
 	server  *httpserver.Server
+	s3      *aws.S3
 }
 
 func New(cfg config.Config) (*App, error) {
@@ -68,6 +71,11 @@ func New(cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("http server: %w", err)
 	}
 
+	s3, err := aws.NewS3(cfg.AWS)
+	if err != nil {
+		return nil, fmt.Errorf("s3: %w", err)
+	}
+
 	a := &App{
 		config:  cfg,
 		logger:  l,
@@ -75,6 +83,7 @@ func New(cfg config.Config) (*App, error) {
 		queue:   q,
 		server:  hs,
 		workers: wp,
+		s3:      s3,
 	}
 
 	go func() {

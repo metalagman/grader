@@ -25,19 +25,13 @@ type Server struct {
 
 type Option func(*Server)
 
-func WithHandler(h http.Handler) Option {
-	return func(server *Server) {
-		server.server.Handler = h
-	}
-}
-
 func WithLogger(l zerolog.Logger) Option {
 	return func(server *Server) {
 		server.logger = l
 	}
 }
 
-func New(cfg Config, opts ...Option) (*Server, error) {
+func New(cfg Config, handler http.Handler, opts ...Option) (*Server, error) {
 	ln, err := net.Listen("tcp", cfg.Listen)
 	if err != nil {
 		return nil, fmt.Errorf("listen: %w", err)
@@ -47,6 +41,7 @@ func New(cfg Config, opts ...Option) (*Server, error) {
 		ReadTimeout:  cfg.TimeoutRead,
 		WriteTimeout: cfg.TimeoutWrite,
 		IdleTimeout:  cfg.TimeoutIdle,
+		Handler:      handler,
 	}
 
 	s := &Server{

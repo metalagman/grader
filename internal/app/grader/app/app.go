@@ -33,7 +33,7 @@ func New(cfg config.Config) (*App, error) {
 	ah := handler.NewSubmissionHandler(wp)
 	r.Post("/submissions", ah.Check)
 
-	hs, err := httpserver.New(cfg.Server, httpserver.WithHandler(r), httpserver.WithLogger(l.Logger))
+	hs, err := httpserver.New(cfg.Server, r, httpserver.WithLogger(l.Logger))
 	if err != nil {
 		return nil, fmt.Errorf("http server: %w", err)
 	}
