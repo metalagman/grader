@@ -2,17 +2,27 @@ version: '3.1'
 
 services:
   db:
-    image: postgres
+    image: postgres:14.1-alpine
     restart: always
     env_file:
       - ../configs/env/database.env
     ports:
-      - "25432:5432"
+      - '5432:5432'
     volumes:
-      - ./../tmp/postgres_data:/var/lib/postgresql/data
+      - ../tmp/posgres_data:/var/lib/postgresql/data
 
   adminer:
     image: adminer
     restart: always
     ports:
-      - "28080:8080"
+      - '8080:8080'
+    depends_on:
+      - db
+
+  rabbitmq:
+    image: 'rabbitmq:3.9.11-management-alpine'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - ../tmp/rabbitmq_data:/var/lib/rabbitmq
