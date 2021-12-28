@@ -1,6 +1,19 @@
 version: '3.1'
 
 services:
+  grader-panel:
+    env_file:
+      - ../configs/env/panel.env
+    build:
+      context: ../.
+      dockerfile: build/panel/Dockerfile
+    image: grader-panel:latest
+    depends_on:
+      - "db"
+      - "rabbitmq"
+      - "minio"
+    command: [ "/app/panel", "serve", "-v"]
+
   db:
     image: postgres:14.1-alpine
     restart: always
@@ -9,7 +22,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - ../tmp/posgres_data:/var/lib/postgresql/data
+      - ../.tmp/postgres_data:/var/lib/postgresql/data
 
   adminer:
     image: adminer
@@ -25,4 +38,16 @@ services:
       - '5672:5672'
       - '15672:15672'
     volumes:
-      - ../tmp/rabbitmq_data:/var/lib/rabbitmq
+      - ../.tmp/rabbitmq_data:/var/lib/rabbitmq
+
+  minio:
+    restart: always
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: access_123
+      MINIO_SECRET_KEY: secret_123
+    command: server /data
+    volumes:
+      - ../.tmp/minio_data:/data

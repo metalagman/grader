@@ -18,7 +18,12 @@ generate:
 	go generate ./...
 
 .PHONY: build
-build:
-	@echo "Building the app to the .build dir"
-	go build -o ./bin/panel ./cmd/panel/*.go
+build: build-panel build-grader
+
+build-grader:
+	@echo "Building the grader app to the bin dir"
 	go build -o ./bin/grader ./cmd/grader/*.go
+
+build-panel:
+	@echo "Building the panel app to the bin dir"
+	go build -o ./bin/panel ./cmd/panel/*.go

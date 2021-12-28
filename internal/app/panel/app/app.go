@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
+	_ "github.com/lib/pq"
 	"grader/internal/app/panel/config"
 	"grader/pkg/aws"
 	"grader/pkg/httpserver"
@@ -32,7 +32,7 @@ func New(cfg config.Config) (*App, error) {
 
 	wp := workerpool.New()
 
-	db, err := sql.Open("mysql", cfg.DB.DSN)
+	db, err := sql.Open("postgres", cfg.DB.DSN)
 	if err != nil {
 		return nil, fmt.Errorf("db open: %w", err)
 	}
