@@ -1,7 +1,14 @@
 version: '3.1'
 
 services:
-  grader-panel:
+  panel_deps:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - db
+      - rabbitmq
+    command: db:5432 rabbitmq:5672
+
+  panel:
     env_file:
       - ../configs/env/panel.env
     build:
@@ -9,10 +16,8 @@ services:
       dockerfile: build/panel/Dockerfile
     image: grader-panel:latest
     depends_on:
-      - "db"
-      - "rabbitmq"
-      - "minio"
-    command: [ "/app/panel", "serve", "-v"]
+      - panel_deps
+    command: ["/app/panel", "serve", "-v"]
 
   db:
     image: postgres:14.1-alpine

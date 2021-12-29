@@ -13,6 +13,7 @@ FROM debian:buster-slim
 WORKDIR /app
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /go/src/panel/bin/* /app/
+COPY --from=build /go/src/panel/scripts/wait-for-it.sh /app/
 RUN chmod +x /app/*
 EXPOSE 8080/tcp
 CMD /app/panel
