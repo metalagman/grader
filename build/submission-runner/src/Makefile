@@ -8,5 +8,4 @@ lint:
 
 test:
 	@echo "Running $(PART_ID) tests"
-	@cp /app/submission/*.go /app/$(PART_ID) 2> /dev/null || true
-	@bash run-tests.sh $(PART_ID)
+	bash run-tests.sh $(PART_ID)

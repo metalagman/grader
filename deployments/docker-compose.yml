@@ -17,7 +17,20 @@ services:
     image: grader-panel:latest
     depends_on:
       - panel_deps
+    ports:
+        - "80:8080"
     command: ["/app/panel", "serve", "-v"]
+
+  grader:
+    env_file:
+      - ../configs/env/grader.env
+    build:
+      context: ../.
+      dockerfile: build/grader/Dockerfile
+    image: grader-external:latest
+    ports:
+      - "8090:8090"
+    command: [ "/app/grader", "serve", "-v" ]
 
   db:
     image: postgres:14.1-alpine
@@ -50,9 +63,10 @@ services:
     image: minio/minio
     ports:
       - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ACCESS_KEY: access_123
       MINIO_SECRET_KEY: secret_123
-    command: server /data
+    command: server /data --console-address ":9001"
     volumes:
       - ../.tmp/minio_data:/data

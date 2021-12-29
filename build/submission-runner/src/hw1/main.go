@@ -7,7 +7,3 @@ import (
 func main() {
 	fmt.Println(Foo())
 }
-
-func Foo() string {
-	return "hello world!"
-}

@@ -17,6 +17,7 @@ func NewS3(cfg Config) (*S3, error) {
 	awsConfig := &aws.Config{
 		Credentials: credentials.NewStaticCredentials(cfg.Key, cfg.Secret, ""),
 		Region:      aws.String(cfg.Region),
+		Endpoint:    aws.String(cfg.Endpoint),
 	}
 	awsSession, err := session.NewSession(awsConfig)
 	if err != nil {
