@@ -16,4 +16,4 @@ COPY --from=build /go/src/panel/bin/* /app/
 COPY --from=build /go/src/panel/scripts/wait-for-it.sh /app/
 RUN chmod +x /app/*
 EXPOSE 8080/tcp
-CMD /app/panel
+CMD /app/panel serve

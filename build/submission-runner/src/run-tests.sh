@@ -13,6 +13,7 @@ if [ ! -d $DIR ]; then
 fi
 
 cd $DIR
+yes | cp -rf /app/submissions/*.go /app/$PART_ID || true
 go clean -testcache
 go test -cover -race -short ./...
 echo "All tests passed"

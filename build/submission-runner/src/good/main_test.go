@@ -7,5 +7,5 @@ import (
 
 func TestFoo(t *testing.T) {
 	v := Foo()
-	assert.Equal(t, v, "hello world!")
+	assert.Equal(t, "hello world!", v)
 }
