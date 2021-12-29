@@ -8,6 +8,7 @@ import (
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	_ "github.com/lib/pq"
 	"grader/internal/app/panel/config"
+	"grader/internal/pkg/migrate"
 	"grader/pkg/aws"
 	"grader/pkg/httpserver"
 	"grader/pkg/logger"
@@ -41,9 +42,9 @@ func New(cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("db ping: %w", err)
 	}
 
-	//if err := migrate.Up(db); err != nil {
-	//	return nil, fmt.Errorf("migrate up: %w", err)
-	//}
+	if err := migrate.Up(db); err != nil {
+		return nil, fmt.Errorf("migrate up: %w", err)
+	}
 
 	conn, err := rabbitmq.Dial(cfg.AMQP.DSN)
 	if err != nil {
