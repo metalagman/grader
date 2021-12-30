@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-redis/redis/v8"
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	_ "github.com/lib/pq"
 	"grader/internal/app/panel/config"
+	"grader/internal/app/panel/session"
+	"grader/internal/app/panel/storage/postgres"
 	"grader/internal/pkg/migrate"
 	"grader/pkg/aws"
 	"grader/pkg/httpserver"
@@ -16,6 +19,7 @@ import (
 	"grader/pkg/queue"
 	"grader/pkg/queue/amqp"
 	"grader/pkg/workerpool"
+	"time"
 )
 
 type App struct {
@@ -26,6 +30,7 @@ type App struct {
 	workers *workerpool.Pool
 	server  *httpserver.Server
 	s3      *aws.S3
+	session session.Manager
 }
 
 func New(cfg config.Config) (*App, error) {
@@ -76,6 +81,25 @@ func New(cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("s3: %w", err)
 	}
 
+	users, err := postgres.NewUserRepository(db)
+	if err != nil {
+		return nil, fmt.Errorf("user repository: %w", err)
+	}
+
+	rds := redis.NewClient(&redis.Options{
+		Addr:     cfg.Redis.Host,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+
+	sm := session.NewRedis(
+		rds,
+		cfg.Security.SecretKey,
+		users,
+		session.WithIssuer(cfg.App.Name),
+		session.WithTokenLifetime(1*time.Hour),
+	)
+
 	a := &App{
 		config:  cfg,
 		logger:  l,
@@ -84,6 +108,7 @@ func New(cfg config.Config) (*App, error) {
 		server:  hs,
 		workers: wp,
 		s3:      s3,
+		session: sm,
 	}
 
 	go func() {

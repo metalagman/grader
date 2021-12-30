@@ -50,6 +50,8 @@ func initDotEnv() {
 func initConfig() {
 	viper.SetConfigType("toml")
 	var defaultConfig = []byte(`
+[app]
+name="Grader Panel"
 [server]
 listen="localhost:8080"
 timeout_read="5s"
@@ -68,6 +70,10 @@ endpoint="s3.eu-central-1.amazonaws.com"
 region="eu-central-1"
 key=""
 secret=""
+[redis]
+host=""
+password=""
+db=0
 `)
 	logger.CheckErr(viper.ReadConfig(bytes.NewBuffer(defaultConfig)))
 
