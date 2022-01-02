@@ -6,6 +6,9 @@ services:
     depends_on:
       - db
       - rabbitmq
+    environment:
+      SLEEP_LENGTH: 1
+      TIMEOUT_LENGTH: 120
     command: db:5432 rabbitmq:5672
 
   panel:
@@ -17,6 +20,8 @@ services:
     image: grader-panel:latest
     depends_on:
       - panel_deps
+      - rabbitmq
+      - db
     ports:
         - "80:8080"
     command: ["/app/panel", "serve", "-v"]

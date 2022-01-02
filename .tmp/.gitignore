@@ -1,2 +1,3 @@
-*
-!.gitignore
+minio_data
+postgres_data
+rabbitmq_data

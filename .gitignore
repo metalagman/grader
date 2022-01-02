@@ -18,3 +18,5 @@ bin
 .env
 .idea
 coverage.out
+
+vendor
