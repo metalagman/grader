@@ -6,7 +6,9 @@ package sessionmock
 
 import (
 	context "context"
-	model "grader/internal/app/panel/model"
+	session "grader/pkg/session"
+	token "grader/pkg/token"
+	http "net/http"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,107 +38,44 @@ func (m *MockManager) EXPECT() *MockManagerMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockManager) Create(ctx context.Context, user *model.User) (string, error) {
+func (m *MockManager) Create(arg0 context.Context, arg1 http.ResponseWriter, arg2 token.Identity) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, user)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockManagerMockRecorder) Create(ctx, user interface{}) *gomock.Call {
+func (mr *MockManagerMockRecorder) Create(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockManager)(nil).Create), ctx, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockManager)(nil).Create), arg0, arg1, arg2)
+}
+
+// DestroyCurrent mocks base method.
+func (m *MockManager) DestroyCurrent(arg0 context.Context, arg1 http.ResponseWriter, arg2 *http.Request) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DestroyCurrent", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DestroyCurrent indicates an expected call of DestroyCurrent.
+func (mr *MockManagerMockRecorder) DestroyCurrent(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DestroyCurrent", reflect.TypeOf((*MockManager)(nil).DestroyCurrent), arg0, arg1, arg2)
 }
 
 // Read mocks base method.
-func (m *MockManager) Read(ctx context.Context, token string) (*model.User, error) {
+func (m *MockManager) Read(arg0 context.Context, arg1 *http.Request) (*session.Session, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Read", ctx, token)
-	ret0, _ := ret[0].(*model.User)
+	ret := m.ctrl.Call(m, "Read", arg0, arg1)
+	ret0, _ := ret[0].(*session.Session)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Read indicates an expected call of Read.
-func (mr *MockManagerMockRecorder) Read(ctx, token interface{}) *gomock.Call {
+func (mr *MockManagerMockRecorder) Read(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockManager)(nil).Read), ctx, token)
-}
-
-// MockCreator is a mock of Creator interface.
-type MockCreator struct {
-	ctrl     *gomock.Controller
-	recorder *MockCreatorMockRecorder
-}
-
-// MockCreatorMockRecorder is the mock recorder for MockCreator.
-type MockCreatorMockRecorder struct {
-	mock *MockCreator
-}
-
-// NewMockCreator creates a new mock instance.
-func NewMockCreator(ctrl *gomock.Controller) *MockCreator {
-	mock := &MockCreator{ctrl: ctrl}
-	mock.recorder = &MockCreatorMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockCreator) EXPECT() *MockCreatorMockRecorder {
-	return m.recorder
-}
-
-// Create mocks base method.
-func (m *MockCreator) Create(ctx context.Context, user *model.User) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, user)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Create indicates an expected call of Create.
-func (mr *MockCreatorMockRecorder) Create(ctx, user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockCreator)(nil).Create), ctx, user)
-}
-
-// MockReader is a mock of Reader interface.
-type MockReader struct {
-	ctrl     *gomock.Controller
-	recorder *MockReaderMockRecorder
-}
-
-// MockReaderMockRecorder is the mock recorder for MockReader.
-type MockReaderMockRecorder struct {
-	mock *MockReader
-}
-
-// NewMockReader creates a new mock instance.
-func NewMockReader(ctrl *gomock.Controller) *MockReader {
-	mock := &MockReader{ctrl: ctrl}
-	mock.recorder = &MockReaderMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockReader) EXPECT() *MockReaderMockRecorder {
-	return m.recorder
-}
-
-// Read mocks base method.
-func (m *MockReader) Read(ctx context.Context, token string) (*model.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Read", ctx, token)
-	ret0, _ := ret[0].(*model.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Read indicates an expected call of Read.
-func (mr *MockReaderMockRecorder) Read(ctx, token interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockReader)(nil).Read), ctx, token)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockManager)(nil).Read), arg0, arg1)
 }
