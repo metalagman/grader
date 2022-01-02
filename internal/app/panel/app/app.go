@@ -9,7 +9,7 @@ import (
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	_ "github.com/lib/pq"
 	"grader/internal/app/panel/config"
-	"grader/internal/app/panel/session"
+	"grader/internal/app/panel/handler"
 	"grader/internal/app/panel/storage/postgres"
 	"grader/internal/pkg/migrate"
 	"grader/pkg/aws"
@@ -18,7 +18,11 @@ import (
 	mw "grader/pkg/middleware"
 	"grader/pkg/queue"
 	"grader/pkg/queue/amqp"
+	"grader/pkg/session"
+	"grader/pkg/templates"
+	"grader/pkg/token"
 	"grader/pkg/workerpool"
+	"grader/web"
 	"time"
 )
 
@@ -30,7 +34,6 @@ type App struct {
 	workers *workerpool.Pool
 	server  *httpserver.Server
 	s3      *aws.S3
-	session session.Manager
 }
 
 func New(cfg config.Config) (*App, error) {
@@ -46,7 +49,6 @@ func New(cfg config.Config) (*App, error) {
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("db ping: %w", err)
 	}
-
 	if err := migrate.Up(db); err != nil {
 		return nil, fmt.Errorf("migrate up: %w", err)
 	}
@@ -67,14 +69,22 @@ func New(cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("amqp: %w", err)
 	}
 
-	r := chi.NewRouter()
-	r.Use(middleware.Recoverer)
-	r.Use(mw.Log(l))
+	rds := redis.NewClient(&redis.Options{
+		Addr:     cfg.Redis.Host,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
 
-	hs, err := httpserver.New(cfg.Server, r, httpserver.WithLogger(l.Logger))
+	tm, err := token.NewJWT(cfg.Security.SecretKey)
 	if err != nil {
-		return nil, fmt.Errorf("http server: %w", err)
+		return nil, fmt.Errorf("token manager: %w", err)
 	}
+
+	sm := session.NewRedis(
+		rds,
+		tm,
+		session.WithSessionLifetime(1*time.Hour),
+	)
 
 	s3, err := aws.NewS3(cfg.AWS)
 	if err != nil {
@@ -86,19 +96,27 @@ func New(cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("user repository: %w", err)
 	}
 
-	rds := redis.NewClient(&redis.Options{
-		Addr:     cfg.Redis.Host,
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
-	})
+	r := chi.NewRouter()
+	r.Use(middleware.Recoverer)
+	r.Use(mw.Log(l))
 
-	sm := session.NewRedis(
-		rds,
-		cfg.Security.SecretKey,
-		users,
-		session.WithIssuer(cfg.App.Name),
-		session.WithTokenLifetime(1*time.Hour),
-	)
+	tmpl, err := templates.NewTemplates(web.AppTemplates, tm)
+	if err != nil {
+		return nil, fmt.Errorf("templates: %w", err)
+	}
+
+	uh := handler.NewUserHandler(tmpl, sm, users)
+
+	r.Get("/app/user/login", uh.Login)
+	r.Post("/app/user/login", uh.Login)
+
+	r.Get("/app/user/register", uh.Register)
+	r.Post("/app/user/register", uh.Register)
+
+	hs, err := httpserver.New(cfg.Server, r, httpserver.WithLogger(l.Logger))
+	if err != nil {
+		return nil, fmt.Errorf("http server: %w", err)
+	}
 
 	a := &App{
 		config:  cfg,
@@ -108,7 +126,6 @@ func New(cfg config.Config) (*App, error) {
 		server:  hs,
 		workers: wp,
 		s3:      s3,
-		session: sm,
 	}
 
 	go func() {

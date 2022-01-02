@@ -3,52 +3,57 @@ package templates
 import (
 	"context"
 	"fmt"
+	"grader/pkg/logger"
+	"grader/pkg/session"
+	"grader/pkg/token"
 	"html/template"
 	"io/fs"
-	"log"
 	"net/http"
 	"time"
 )
 
-type MyTemplate struct {
-	Tmpl *template.Template
+type Templates struct {
+	tmpl         *template.Template
+	tokenManager token.Manager
 }
 
-func NewTemplates(assets fs.FS) (*MyTemplate, error) {
+func NewTemplates(assets fs.FS, tm token.Manager) (*Templates, error) {
 	tmpl, err := template.ParseFS(assets, "*.html")
 	if err != nil {
 		return nil, fmt.Errorf("new templates: %w", err)
 	}
-	return &MyTemplate{
-		Tmpl: tmpl,
+	return &Templates{
+		tmpl:         tmpl,
+		tokenManager: tm,
 	}, nil
 }
 
-func (tpl *MyTemplate) Render(ctx context.Context, w http.ResponseWriter, tmplName string, data map[string]interface{}) {
+func (tpl *Templates) Render(ctx context.Context, w http.ResponseWriter, tmplName string, data map[string]interface{}) {
+	l := logger.Ctx(ctx)
 	if data == nil {
 		data = make(map[string]interface{}, 3)
 	}
 
-	sess, err := session.SessionFromContext(ctx)
+	s, err := session.FromContext(ctx)
 	if err == nil {
 		data["Authorized"] = true
-		data["Session"] = sess
+		data["Session"] = s
 
-		token, err := tpl.Tokens.Create(sess, time.Now().Add(24*time.Hour).Unix())
+		tk, err := tpl.tokenManager.Issue(s, 24*time.Hour)
 		if err != nil {
-			log.Println("csrf token creation error:", err)
+			l.Error().Err(err).Send()
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
 
-		data["CSRFToken"] = token
+		data["CSRFToken"] = tk
 	} else {
 		data["Authorized"] = false
 	}
 
-	err = tpl.Tmpl.ExecuteTemplate(w, tmplName, data)
+	err = tpl.tmpl.ExecuteTemplate(w, tmplName, data)
 	if err != nil {
-		log.Println("cant execute template", err)
+		l.Error().Err(err).Send()
 		http.Error(w, "template error", http.StatusInternalServerError)
 		return
 	}

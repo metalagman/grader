@@ -10,3 +10,7 @@ type User struct {
 	Password string    `json:"-"`
 	IsAdmin  bool      `json:"-"`
 }
+
+func (u *User) Identity() string {
+	return u.ID.String()
+}
