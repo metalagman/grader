@@ -22,7 +22,7 @@ import (
 	"grader/pkg/templates"
 	"grader/pkg/token"
 	"grader/pkg/workerpool"
-	"grader/web"
+	"grader/web/template"
 	"time"
 )
 
@@ -100,7 +100,7 @@ func New(cfg config.Config) (*App, error) {
 	r.Use(middleware.Recoverer)
 	r.Use(mw.Log(l))
 
-	tmpl, err := templates.NewTemplates(web.AppTemplates, tm)
+	tmpl, err := templates.NewTemplates(template.AppTemplates, tm, "app/*.html")
 	if err != nil {
 		return nil, fmt.Errorf("templates: %w", err)
 	}

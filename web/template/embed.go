@@ -1,6 +1,6 @@
-package web
+package template
 
 import "embed"
 
-//go:embed template/app/*.html
+//go:embed app/*
 var AppTemplates embed.FS

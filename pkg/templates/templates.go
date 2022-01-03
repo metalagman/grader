@@ -17,8 +17,8 @@ type Templates struct {
 	tokenManager token.Manager
 }
 
-func NewTemplates(assets fs.FS, tm token.Manager) (*Templates, error) {
-	tmpl, err := template.ParseFS(assets, "web/template/app/*.html")
+func NewTemplates(assets fs.FS, tm token.Manager, patterns ...string) (*Templates, error) {
+	tmpl, err := template.ParseFS(assets, patterns...)
 	if err != nil {
 		return nil, fmt.Errorf("new templates: %w", err)
 	}
