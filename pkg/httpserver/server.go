@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"net"
 	"net/http"
 	"time"
 )
@@ -18,9 +17,8 @@ type Config struct {
 }
 
 type Server struct {
-	listener net.Listener
-	server   *http.Server
-	logger   zerolog.Logger
+	server *http.Server
+	logger zerolog.Logger
 }
 
 type Option func(*Server)

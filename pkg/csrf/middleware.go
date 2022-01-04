@@ -28,7 +28,5 @@ func ValidateMiddleware(tm token.Manager, next http.Handler) http.Handler {
 		}
 
 		http.Error(w, err.Error(), http.StatusForbidden)
-
-		return
 	})
 }
