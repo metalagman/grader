@@ -113,7 +113,7 @@ func New(cfg config.Config) (*App, error) {
 	r.Get("/app/user/register", uh.Register)
 	r.Post("/app/user/register", uh.Register)
 
-	hs, err := httpserver.New(cfg.Server, r, httpserver.WithLogger(l.Logger))
+	hs, err := httpserver.New(cfg.Server, r)
 	if err != nil {
 		return nil, fmt.Errorf("http server: %w", err)
 	}

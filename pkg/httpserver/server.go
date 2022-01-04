@@ -32,12 +32,8 @@ func WithLogger(l zerolog.Logger) Option {
 }
 
 func New(cfg Config, handler http.Handler, opts ...Option) (*Server, error) {
-	ln, err := net.Listen("tcp", cfg.Listen)
-	if err != nil {
-		return nil, fmt.Errorf("listen: %w", err)
-	}
-
 	hs := &http.Server{
+		Addr:         cfg.Listen,
 		ReadTimeout:  cfg.TimeoutRead,
 		WriteTimeout: cfg.TimeoutWrite,
 		IdleTimeout:  cfg.TimeoutIdle,
@@ -45,9 +41,8 @@ func New(cfg Config, handler http.Handler, opts ...Option) (*Server, error) {
 	}
 
 	s := &Server{
-		logger:   log.Logger,
-		listener: ln,
-		server:   hs,
+		logger: log.Logger,
+		server: hs,
 	}
 
 	for _, o := range opts {
@@ -56,7 +51,7 @@ func New(cfg Config, handler http.Handler, opts ...Option) (*Server, error) {
 
 	go func() {
 		s.logger.Info().Str("listen", cfg.Listen).Msg("Listening incoming connections")
-		if err := s.server.Serve(s.listener); err != nil && err != http.ErrServerClosed {
+		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			s.logger.Fatal().Err(err).Send()
 		}
 	}()
