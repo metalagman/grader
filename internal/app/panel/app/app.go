@@ -22,7 +22,8 @@ import (
 	"grader/pkg/templates"
 	"grader/pkg/token"
 	"grader/pkg/workerpool"
-	"grader/web/template"
+	"grader/web"
+	"net/http"
 	"time"
 )
 
@@ -100,7 +101,7 @@ func New(cfg config.Config) (*App, error) {
 	r.Use(middleware.Recoverer)
 	r.Use(mw.Log(l))
 
-	tmpl, err := templates.NewTemplates(template.AppTemplates, tm, "app/*.html")
+	tmpl, err := templates.NewTemplates(web.TemplatesFS, tm, "template/app/*.html")
 	if err != nil {
 		return nil, fmt.Errorf("templates: %w", err)
 	}
@@ -112,6 +113,9 @@ func New(cfg config.Config) (*App, error) {
 
 	r.Get("/app/user/register", uh.Register)
 	r.Post("/app/user/register", uh.Register)
+
+	static := http.FileServer(http.FS(web.StaticFS))
+	r.Handle("/static/*", static)
 
 	hs, err := httpserver.New(cfg.Server, r)
 	if err != nil {

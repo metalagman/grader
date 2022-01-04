@@ -26,10 +26,10 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := r.FormValue("username")
-	pass := r.FormValue("password")
+	username := r.FormValue("login")
+	password := r.FormValue("password")
 
-	user, err := h.users.ReadByNameAndPassword(ctx, name, pass)
+	user, err := h.users.ReadByNameAndPassword(ctx, username, password)
 	switch err {
 	case nil:
 		// all is ok
