@@ -1,89 +1,110 @@
 package handler
 
 import (
+	"grader/internal/app/panel/model"
 	"grader/internal/app/panel/storage"
 	"grader/pkg/apperr"
+	"grader/pkg/httputil"
+	"grader/pkg/layout"
+	"grader/pkg/logger"
 	"grader/pkg/session"
-	"grader/pkg/templates"
+	"grader/pkg/token"
 	"net/http"
 )
 
 type UserHandler struct {
-	tmpl    *templates.Templates
+	layout  *layout.Layout
 	session session.Manager
+	token   token.Manager
 	users   storage.UserRepository
 }
 
-func NewUserHandler(tmpl *templates.Templates, session session.Manager, users storage.UserRepository) *UserHandler {
-	return &UserHandler{tmpl: tmpl, session: session, users: users}
+func NewUserHandler(l *layout.Layout, s session.Manager, u storage.UserRepository) *UserHandler {
+	return &UserHandler{layout: l, session: s, users: u}
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if r.Method != http.MethodPost {
-		h.tmpl.Render(r.Context(), w, "login.html", nil)
+		h.layout.RenderView(w, r, "template/app/views/login.gohtml", nil)
 		return
 	}
 
-	username := r.FormValue("login")
-	password := r.FormValue("password")
+	in := &struct {
+		Username string `validate:"required"`
+		Password string `validate:"required"`
+	}{
+		r.FormValue("login"),
+		r.FormValue("password"),
+	}
 
-	user, err := h.users.ReadByNameAndPassword(ctx, username, password)
+	if !httputil.ValidateData(w, in) {
+		return
+	}
+
+	user, err := h.users.ReadByNameAndPassword(ctx, in.Username, in.Password)
 	switch err {
 	case nil:
 		// all is ok
 	case apperr.ErrNotFound:
-		http.Error(w, "unauthorized", http.StatusBadRequest)
+		http.Error(w, "Unauthorized", http.StatusBadRequest)
 	default:
-		http.Error(w, "internal err", http.StatusInternalServerError)
+		http.Error(w, apperr.ErrInternal.Error(), http.StatusInternalServerError)
 	}
 	if err != nil {
 		return
 	}
 
 	if err := h.session.Create(r.Context(), w, user); err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		http.Error(w, apperr.ErrInternal.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/photos/", http.StatusFound)
+
+	http.Redirect(w, r, "/app/assessments/", http.StatusTemporaryRedirect)
 }
 
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
-	//if r.Method != http.MethodPost {
-	//	h.tmpl.Render(r.Context(), w, "register.html", nil)
-	//	return
-	//}
-	//
-	//login := r.FormValue("login")
-	//pass := r.FormValue("password")
-	//
-	//if !govalidator.IsEmail(email) {
-	//	http.Error(w, "Bad email", http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//if !loginRE.MatchString(login) {
-	//	http.Error(w, "Bad login", http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//user, err := h.UsersRepo.Create(login, email, pass)
-	//switch err {
-	//case nil:
-	//	// all is ok
-	//case errUserExists:
-	//	http.Error(w, "Looks like user exists", http.StatusBadRequest)
-	//default:
-	//	log.Println("db err", err)
-	//	http.Error(w, "Db err", http.StatusInternalServerError)
-	//}
-	//if err != nil {
-	//	return
-	//}
-	//
-	//h.Sessions.Create(r.Context(), w, user)
-	//http.Redirect(w, r, "/photos/", http.StatusFound)
+	ctx := r.Context()
+	l := logger.Ctx(ctx)
+
+	if r.Method != http.MethodPost {
+		h.layout.RenderView(w, r, "template/app/views/register.gohtml", nil)
+		return
+	}
+
+	in := &struct {
+		username string `validate:"required"`
+		password string `validate:"required"`
+	}{
+		r.FormValue("login"),
+		r.FormValue("password"),
+	}
+
+	if !httputil.ValidateData(w, in) {
+		return
+	}
+
+	user, err := h.users.Create(ctx, &model.User{Name: in.username, Password: in.password})
+	switch err {
+	case nil:
+		// all is ok
+	case apperr.ErrConflict:
+		http.Error(w, "User already exists", http.StatusBadRequest)
+	default:
+		l.Error().Err(err).Send()
+		http.Error(w, apperr.ErrInternal.Error(), http.StatusInternalServerError)
+	}
+	if err != nil {
+		return
+	}
+
+	if err := h.session.Create(r.Context(), w, user); err != nil {
+		http.Error(w, apperr.ErrInternal.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/app/assessments", http.StatusTemporaryRedirect)
 }
 
 func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {

@@ -14,12 +14,12 @@ import (
 	"grader/internal/pkg/migrate"
 	"grader/pkg/aws"
 	"grader/pkg/httpserver"
+	"grader/pkg/layout"
 	"grader/pkg/logger"
 	mw "grader/pkg/middleware"
 	"grader/pkg/queue"
 	"grader/pkg/queue/amqp"
 	"grader/pkg/session"
-	"grader/pkg/templates"
 	"grader/pkg/token"
 	"grader/pkg/workerpool"
 	"grader/web"
@@ -101,12 +101,16 @@ func New(cfg config.Config) (*App, error) {
 	r.Use(middleware.Recoverer)
 	r.Use(mw.Log(l))
 
-	tmpl, err := templates.NewTemplates(web.TemplatesFS, tm, "template/app/*.html")
+	lt, err := layout.NewLayout(
+		web.TemplatesFS,
+		"template/app/layouts/base.gohtml",
+		handler.ViewDataFunc(tm),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("templates: %w", err)
 	}
 
-	uh := handler.NewUserHandler(tmpl, sm, users)
+	uh := handler.NewUserHandler(lt, sm, users)
 
 	r.Get("/app/user/login", uh.Login)
 	r.Post("/app/user/login", uh.Login)
