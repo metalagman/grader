@@ -118,6 +118,8 @@ func New(cfg config.Config) (*App, error) {
 	r.Get("/app/user/register", uh.Register)
 	r.Post("/app/user/register", uh.Register)
 
+	r.Get("/app/user/logout", uh.Logout)
+
 	static := http.FileServer(http.FS(web.StaticFS))
 	r.Handle("/static/*", static)
 
