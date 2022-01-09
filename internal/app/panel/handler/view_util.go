@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"grader/internal/app/panel/pkg/auth"
 	"grader/pkg/csrf"
 	"grader/pkg/layout"
 	"grader/pkg/session"
@@ -21,6 +22,11 @@ func ViewDataFunc(tm token.Manager) layout.ViewDataFunc {
 			data["CSRFToken"] = csrf.FromContext(ctx)
 		} else {
 			data["Authorized"] = false
+		}
+
+		u, err := auth.UserFromContext(ctx)
+		if err == nil {
+			data["CurrentUser"] = u
 		}
 
 		return data, nil

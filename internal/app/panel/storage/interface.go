@@ -15,3 +15,12 @@ type UserRepository interface {
 	// Read instance of model.User
 	Read(ctx context.Context, id uuid.UUID) (*model.User, error)
 }
+
+type AssessmentRepository interface {
+	// Create a new model.Assessment
+	Create(ctx context.Context, m *model.Assessment) (*model.Assessment, error)
+	// All instances of model.Assessment
+	All(ctx context.Context) ([]*model.Assessment, error)
+	// Read instance of model.Assessment
+	Read(ctx context.Context, id uuid.UUID) (*model.Assessment, error)
+}

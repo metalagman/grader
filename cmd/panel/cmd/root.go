@@ -32,9 +32,9 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initLogger)
 	cobra.OnInitialize(initDotEnv)
 	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initLogger)
 
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Set high log verbosity")

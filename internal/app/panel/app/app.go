@@ -10,6 +10,7 @@ import (
 	_ "github.com/lib/pq"
 	"grader/internal/app/panel/config"
 	"grader/internal/app/panel/handler"
+	"grader/internal/app/panel/pkg/auth"
 	"grader/internal/app/panel/storage/postgres"
 	"grader/internal/pkg/migrate"
 	"grader/pkg/aws"
@@ -24,6 +25,7 @@ import (
 	"grader/pkg/workerpool"
 	"grader/web"
 	"net/http"
+	"runtime"
 	"time"
 )
 
@@ -96,6 +98,10 @@ func New(cfg config.Config) (*App, error) {
 	if err != nil {
 		return nil, fmt.Errorf("user repository: %w", err)
 	}
+	assessments, err := postgres.NewAssessmentRepository(db)
+	if err != nil {
+		return nil, fmt.Errorf("assessments repository: %w", err)
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -111,14 +117,41 @@ func New(cfg config.Config) (*App, error) {
 	}
 
 	uh := handler.NewUserHandler(lt, sm, users)
+	ah := handler.NewAdminHandler(lt, users, assessments)
+	sh := handler.NewSubmitHandler(lt, users, assessments, s3)
 
-	r.Get("/app/user/login", uh.Login)
-	r.Post("/app/user/login", uh.Login)
+	r.Route("/app", func(r chi.Router) {
+		r.Use(session.ContextMiddleware(sm))
+		r.Use(auth.ContextMiddleware(users))
 
-	r.Get("/app/user/register", uh.Register)
-	r.Post("/app/user/register", uh.Register)
+		r.Route("/submit", func(r chi.Router) {
+			r.Use(auth.AuthMiddleware())
 
-	r.Get("/app/user/logout", uh.Logout)
+			r.Get("/{id}", sh.Create)
+			r.Post("/{id}", sh.Create)
+		})
+
+		r.Route("/user", func(r chi.Router) {
+			r.Get("/login", uh.Login)
+			r.Post("/login", uh.Login)
+
+			r.Get("/register", uh.Register)
+			r.Post("/register", uh.Register)
+
+			r.Get("/logout", uh.Logout)
+		})
+
+		r.Route("/admin", func(r chi.Router) {
+			r.Use(auth.AuthMiddleware())
+
+			r.Get("/assessments", ah.AssessmentList)
+
+			r.Get("/assessments/create", ah.AssessmentCreate)
+			r.Post("/assessments/create", ah.AssessmentCreate)
+		})
+
+		r.Get("/", uh.Default)
+	})
 
 	static := http.FileServer(http.FS(web.StaticFS))
 	r.Handle("/static/*", static)
@@ -144,6 +177,8 @@ func New(cfg config.Config) (*App, error) {
 		_ = sendCh.Close()
 		_ = conn.Close()
 	}()
+
+	wp.Start(runtime.GOMAXPROCS(0) * 2)
 
 	return a, nil
 }

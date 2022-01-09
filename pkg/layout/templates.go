@@ -29,8 +29,9 @@ func NewLayout(tmplFS fs.FS, layoutFile string, dataFunc ViewDataFunc) (*Layout,
 	}
 
 	return &Layout{
-		fs:   tmplFS,
-		tmpl: tmpl,
+		fs:       tmplFS,
+		tmpl:     tmpl,
+		dataFunc: dataFunc,
 	}, nil
 }
 
@@ -69,12 +70,22 @@ func (l *Layout) RenderView(w http.ResponseWriter, r *http.Request, viewName str
 
 	if l.dataFunc != nil {
 		ctx := r.Context()
-		data, err = l.dataFunc(ctx, data)
+		newData, err := l.dataFunc(ctx, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		if data == nil {
+			data = newData
+		} else {
+			for k, v := range newData {
+				data[k] = v
+			}
+		}
 	}
+
+	lg := logger.Ctx(r.Context())
+	lg.Debug().Msgf("View data: %+v", data)
 
 	if err := view.Render(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

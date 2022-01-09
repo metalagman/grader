@@ -19,6 +19,7 @@ var ErrUnauthorized = errors.New("unauthorized")
 type Session struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
+	UserName  string    `json:"user_name"`
 	StartedAt time.Time `json:"started_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }

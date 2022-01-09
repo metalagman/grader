@@ -15,16 +15,19 @@ func FromContext(ctx context.Context) (*Session, error) {
 	return sess, nil
 }
 
-func AuthMiddleware(sm Manager, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		s, err := sm.Read(ctx, r)
-		if err != nil {
-			http.Error(w, "No auth", http.StatusUnauthorized)
-			return
-		}
-		ctx = context.WithValue(ctx, contextKeySession{}, s)
+func ContextMiddleware(sm Manager) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			s, err := sm.Read(ctx, r)
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
 
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			// if session found save it into context
+			ctx = context.WithValue(ctx, contextKeySession{}, s)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
