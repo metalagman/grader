@@ -1,9 +1,10 @@
 package aws
 
 type Config struct {
-	Endpoint string `mapstructure:"endpoint"`
-	Region   string `mapstructure:"region"`
-	Key      string `mapstructure:"access_key_id"`
-	Secret   string `mapstructure:"secret_access_key"`
-	Bucket   string `mapstructure:"bucket"`
+	Endpoint   string `mapstructure:"endpoint"`
+	Region     string `mapstructure:"region"`
+	Key        string `mapstructure:"key"`
+	Secret     string `mapstructure:"secret"`
+	Bucket     string `mapstructure:"bucket"`
+	DisableSSL bool   `mapstructure:"disable_ssl"`
 }

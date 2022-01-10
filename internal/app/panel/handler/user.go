@@ -8,14 +8,12 @@ import (
 	"grader/pkg/layout"
 	"grader/pkg/logger"
 	"grader/pkg/session"
-	"grader/pkg/token"
 	"net/http"
 )
 
 type UserHandler struct {
 	layout  *layout.Layout
 	session session.Manager
-	token   token.Manager
 	users   storage.UserRepository
 }
 

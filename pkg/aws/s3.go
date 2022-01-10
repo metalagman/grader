@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"grader/pkg/logger"
 	"io"
 	"time"
 )
@@ -18,10 +19,15 @@ type S3 struct {
 }
 
 func NewS3(cfg Config) (*S3, error) {
+	l := logger.Global()
+	l.Debug().Msgf("%#v", cfg)
+
 	awsConfig := &aws.Config{
-		Credentials: credentials.NewStaticCredentials(cfg.Key, cfg.Secret, ""),
-		Region:      aws.String(cfg.Region),
-		Endpoint:    aws.String(cfg.Endpoint),
+		Credentials:      credentials.NewStaticCredentials(cfg.Key, cfg.Secret, ""),
+		Region:           aws.String(cfg.Region),
+		Endpoint:         aws.String(cfg.Endpoint),
+		DisableSSL:       aws.Bool(cfg.DisableSSL),
+		S3ForcePathStyle: aws.Bool(true),
 	}
 	awsSession, err := session.NewSession(awsConfig)
 	if err != nil {

@@ -7,15 +7,11 @@ import (
 	"grader/pkg/httputil"
 	"grader/pkg/layout"
 	"grader/pkg/logger"
-	"grader/pkg/session"
-	"grader/pkg/token"
 	"net/http"
 )
 
 type AdminHandler struct {
 	layout      *layout.Layout
-	session     session.Manager
-	token       token.Manager
 	users       storage.UserRepository
 	assessments storage.AssessmentRepository
 }
@@ -75,7 +71,7 @@ func (h *AdminHandler) AssessmentCreate(w http.ResponseWriter, r *http.Request) 
 		FileName:       in.FileName,
 	}
 
-	m, err := h.assessments.Create(ctx, m)
+	_, err := h.assessments.Create(ctx, m)
 	if err != nil {
 		l.Error().Err(err).Send()
 		httputil.WriteError(w, apperr.ErrInternal, http.StatusInternalServerError)

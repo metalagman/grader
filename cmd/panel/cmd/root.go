@@ -70,6 +70,7 @@ endpoint="s3.eu-central-1.amazonaws.com"
 region="eu-central-1"
 key=""
 secret=""
+disable_ssl=0
 [redis]
 host=""
 password=""
