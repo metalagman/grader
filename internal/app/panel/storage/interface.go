@@ -24,3 +24,14 @@ type AssessmentRepository interface {
 	// Read instance of model.Assessment
 	Read(ctx context.Context, id uuid.UUID) (*model.Assessment, error)
 }
+
+type SubmissionRepository interface {
+	// Create a new model.Submission
+	Create(ctx context.Context, m *model.Submission) (*model.Submission, error)
+	// All instances of model.Submission
+	All(ctx context.Context) ([]*model.Submission, error)
+	// AllByUserID instances of model.Submission
+	AllByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Submission, error)
+	// Read instance of model.Submission
+	Read(ctx context.Context, id uuid.UUID) (*model.Submission, error)
+}
