@@ -36,11 +36,7 @@ func (r *SubmissionRepository) Create(ctx context.Context, m *model.Submission) 
 			user_id,
 			assessment_id,
 			file_name,
-			file_url,
-			external_id,
-			result_date,
-			result_pass,
-			result_text
+			file_url
 		)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id
@@ -52,10 +48,6 @@ func (r *SubmissionRepository) Create(ctx context.Context, m *model.Submission) 
 		m.AssessmentID,
 		m.FileName,
 		m.FileURL,
-		m.ExternalID,
-		m.ResultDate,
-		m.ResultPass,
-		m.ResultText,
 	).Scan(&m.ID)
 	if err != nil {
 		if pgErr, ok := err.(*pg.Error); ok {

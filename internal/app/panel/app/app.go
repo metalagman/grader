@@ -102,6 +102,10 @@ func New(cfg config.Config) (*App, error) {
 	if err != nil {
 		return nil, fmt.Errorf("assessments repository: %w", err)
 	}
+	submissions, err := postgres.NewSubmissionRepository(db)
+	if err != nil {
+		return nil, fmt.Errorf("assessments repository: %w", err)
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -118,7 +122,7 @@ func New(cfg config.Config) (*App, error) {
 
 	uh := handler.NewUserHandler(lt, sm, users)
 	ah := handler.NewAdminHandler(lt, users, assessments)
-	sh := handler.NewSubmitHandler(lt, users, assessments, s3)
+	sh := handler.NewSubmitHandler(lt, s3, users, assessments, submissions)
 
 	r.Route("/app", func(r chi.Router) {
 		r.Use(session.ContextMiddleware(sm))

@@ -5,10 +5,12 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"grader/internal/app/panel/model"
 	"grader/internal/app/panel/pkg/auth"
 	"grader/internal/app/panel/storage"
 	"grader/pkg/apperr"
 	"grader/pkg/aws"
+	"grader/pkg/httputil"
 	"grader/pkg/layout"
 	"grader/pkg/logger"
 	"mime/multipart"
@@ -19,19 +21,22 @@ type SubmissionHandler struct {
 	layout      *layout.Layout
 	users       storage.UserRepository
 	assessments storage.AssessmentRepository
+	submissions storage.SubmissionRepository
 	s3          *aws.S3
 }
 
 func NewSubmitHandler(
 	l *layout.Layout,
+	s3 *aws.S3,
 	u storage.UserRepository,
 	a storage.AssessmentRepository,
-	s3 *aws.S3,
+	s storage.SubmissionRepository,
 ) *SubmissionHandler {
 	return &SubmissionHandler{
 		layout:      l,
 		users:       u,
 		assessments: a,
+		submissions: s,
 		s3:          s3,
 	}
 }
@@ -110,6 +115,18 @@ func (h *SubmissionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	l.Debug().Str("download-url", fileURL).Msg("Got download link")
+
+	m := &model.Submission{
+		UserID:       user.ID,
+		AssessmentID: as.ID,
+		FileName:     as.FileName,
+		FileURL:      fileURL,
+	}
+
+	if _, err := h.submissions.Create(ctx, m); err != nil {
+		l.Error().Err(err).Send()
+		httputil.WriteError(w, apperr.ErrInternal, http.StatusInternalServerError)
+	}
 
 	http.Redirect(w, r, "/app/user/submissions", http.StatusFound)
 }
