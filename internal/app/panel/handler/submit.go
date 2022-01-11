@@ -13,6 +13,7 @@ import (
 	"grader/pkg/httputil"
 	"grader/pkg/layout"
 	"grader/pkg/logger"
+	"grader/pkg/queue"
 	"mime/multipart"
 	"net/http"
 )
@@ -23,22 +24,31 @@ type SubmissionHandler struct {
 	assessments storage.AssessmentRepository
 	submissions storage.SubmissionRepository
 	s3          *aws.S3
+	topic       queue.Topic
 }
 
 func NewSubmitHandler(
 	l *layout.Layout,
 	s3 *aws.S3,
+	q queue.Queue,
 	u storage.UserRepository,
 	a storage.AssessmentRepository,
 	s storage.SubmissionRepository,
-) *SubmissionHandler {
+) (*SubmissionHandler, error) {
+	const topicName = "grader-submissions"
+	t, err := q.Topic(topicName)
+	if err != nil {
+		return nil, err
+	}
+
 	return &SubmissionHandler{
 		layout:      l,
 		users:       u,
 		assessments: a,
 		submissions: s,
 		s3:          s3,
-	}
+		topic:       t,
+	}, nil
 }
 
 func (h *SubmissionHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -126,6 +136,13 @@ func (h *SubmissionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if _, err := h.submissions.Create(ctx, m); err != nil {
 		l.Error().Err(err).Send()
 		httputil.WriteError(w, apperr.ErrInternal, http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.topic.Publish(m); err != nil {
+		l.Error().Err(err).Send()
+		httputil.WriteError(w, apperr.ErrInternal, http.StatusInternalServerError)
+		return
 	}
 
 	http.Redirect(w, r, "/app/user/submissions", http.StatusFound)

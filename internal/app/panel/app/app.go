@@ -122,7 +122,10 @@ func New(cfg config.Config) (*App, error) {
 
 	uh := handler.NewUserHandler(lt, sm, users)
 	ah := handler.NewAdminHandler(lt, users, assessments)
-	sh := handler.NewSubmitHandler(lt, s3, users, assessments, submissions)
+	sh, err := handler.NewSubmitHandler(lt, s3, q, users, assessments, submissions)
+	if err != nil {
+		return nil, fmt.Errorf("submission handler: %w", err)
+	}
 
 	r.Route("/app", func(r chi.Router) {
 		r.Use(session.ContextMiddleware(sm))
