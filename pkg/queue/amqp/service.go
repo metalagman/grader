@@ -118,17 +118,17 @@ func (t *Topic) Publish(message interface{}) error {
 
 // Consume message from topic
 func (t *Topic) Consume(targetMsg interface{}, consumer queue.ConsumerFunc) error {
-	v := reflect.ValueOf(targetMsg)
-	if v.Kind() != reflect.Ptr {
-		return fmt.Errorf("want msgType as pointer to struct")
+	val := reflect.ValueOf(targetMsg)
+
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
 	}
 
-	v = v.Elem() // dereference pointer
-	if v.Kind() != reflect.Struct {
-		return fmt.Errorf("want msgType as pointer to struct")
+	if val.Kind() != reflect.Struct {
+		return fmt.Errorf("targetMsg must be a struct")
 	}
 
-	msgType := v.Type()
+	msgType := val.Type()
 
 	messages, err := t.channel.Consume(
 		t.queueName,
@@ -158,7 +158,7 @@ func (t *Topic) Consume(targetMsg interface{}, consumer queue.ConsumerFunc) erro
 
 func processMessage(amqpMsg amqp.Delivery, msgType reflect.Type, consumer queue.ConsumerFunc) workerpool.Job {
 	return func(ctx context.Context) error {
-		v := reflect.New(msgType)
+		v := reflect.New(msgType).Interface()
 
 		if err := json.Unmarshal(amqpMsg.Body, &v); err != nil {
 			if err := amqpMsg.Ack(false); err != nil {
@@ -167,7 +167,7 @@ func processMessage(amqpMsg amqp.Delivery, msgType reflect.Type, consumer queue.
 			return fmt.Errorf("json decode: %w", err)
 		}
 
-		if err := consumer(v); err != nil {
+		if err := consumer(ctx, v); err != nil {
 			if err := amqpMsg.Reject(true); err != nil {
 				return fmt.Errorf("amqp reject: %w", err)
 			}

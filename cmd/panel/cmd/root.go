@@ -52,6 +52,7 @@ func initConfig() {
 	var defaultConfig = []byte(`
 [app]
 name="Grader Panel"
+topic_name="grader-submissions"
 [server]
 listen="localhost:8080"
 timeout_read="5s"

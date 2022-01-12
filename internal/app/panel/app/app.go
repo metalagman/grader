@@ -6,7 +6,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-redis/redis/v8"
-	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	_ "github.com/lib/pq"
 	"grader/internal/app/panel/config"
 	"grader/internal/app/panel/handler"
@@ -54,16 +53,6 @@ func New(cfg config.Config) (*App, error) {
 	}
 	if err := migrate.Up(db); err != nil {
 		return nil, fmt.Errorf("migrate up: %w", err)
-	}
-
-	conn, err := rabbitmq.Dial(cfg.AMQP.DSN)
-	if err != nil {
-		return nil, fmt.Errorf("dial: %w", err)
-	}
-
-	sendCh, err := conn.Channel()
-	if err != nil {
-		return nil, fmt.Errorf("channel: %w", err)
 	}
 
 	// init amqp dep
@@ -122,7 +111,7 @@ func New(cfg config.Config) (*App, error) {
 
 	uh := handler.NewUserHandler(lt, sm, users)
 	ah := handler.NewAdminHandler(lt, users, assessments)
-	sh, err := handler.NewSubmitHandler(lt, s3, q, users, assessments, submissions)
+	sh, err := handler.NewSubmitHandler(lt, s3, q, cfg.App.TopicName, users, assessments, submissions)
 	if err != nil {
 		return nil, fmt.Errorf("submission handler: %w", err)
 	}
@@ -181,8 +170,6 @@ func New(cfg config.Config) (*App, error) {
 	go func() {
 		<-a.stop
 		q.Stop()
-		_ = sendCh.Close()
-		_ = conn.Close()
 	}()
 
 	wp.Start(runtime.GOMAXPROCS(0) * 2)

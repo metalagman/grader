@@ -5,9 +5,9 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"grader/internal/app/panel/model"
 	"grader/internal/app/panel/pkg/auth"
 	"grader/internal/app/panel/storage"
+	"grader/internal/pkg/model"
 	"grader/pkg/apperr"
 	"grader/pkg/aws"
 	"grader/pkg/httputil"
@@ -31,11 +31,11 @@ func NewSubmitHandler(
 	l *layout.Layout,
 	s3 *aws.S3,
 	q queue.Queue,
+	topicName string,
 	u storage.UserRepository,
 	a storage.AssessmentRepository,
 	s storage.SubmissionRepository,
 ) (*SubmissionHandler, error) {
-	const topicName = "grader-submissions"
 	t, err := q.Topic(topicName)
 	if err != nil {
 		return nil, err

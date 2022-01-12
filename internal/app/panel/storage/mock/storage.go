@@ -6,7 +6,7 @@ package storagemock
 
 import (
 	context "context"
-	model "grader/internal/app/panel/model"
+	model "grader/internal/pkg/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

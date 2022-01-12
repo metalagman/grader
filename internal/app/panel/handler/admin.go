@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"grader/internal/app/panel/model"
 	"grader/internal/app/panel/storage"
+	"grader/internal/pkg/model"
 	"grader/pkg/apperr"
 	"grader/pkg/httputil"
 	"grader/pkg/layout"

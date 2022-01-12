@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"github.com/google/uuid"
-	"grader/internal/app/panel/model"
 	"grader/internal/app/panel/storage"
+	"grader/internal/pkg/model"
 	"grader/pkg/apperr"
 	"grader/pkg/logger"
 	"grader/pkg/session"

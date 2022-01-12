@@ -19,7 +19,8 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Name string `mapstructure:"name"`
+	Name      string `mapstructure:"name"`
+	TopicName string `mapstructure:"topic_name"`
 }
 
 type DatabaseConfig struct {

@@ -4,7 +4,7 @@ package storage
 import (
 	"context"
 	"github.com/google/uuid"
-	"grader/internal/app/panel/model"
+	"grader/internal/pkg/model"
 )
 
 type UserRepository interface {

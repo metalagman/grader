@@ -27,3 +27,7 @@ build-grader:
 build-panel:
 	@echo "Building the panel app to the bin dir"
 	go build -o ./bin/panel ./cmd/panel/*.go
+
+build-queue:
+	@echo "Building the queue app to the bin dir"
+	go build -o ./bin/queue ./cmd/queue/*.go

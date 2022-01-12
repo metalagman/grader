@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgerrcode"
 	pg "github.com/lib/pq"
-	"grader/internal/app/panel/model"
 	"grader/internal/app/panel/storage"
+	"grader/internal/pkg/model"
 	"grader/pkg/apperr"
 )
 

@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"grader/internal/app/grader/config"
+	"grader/internal/app/queue/config"
 	"grader/pkg/logger"
 	"io/fs"
 	"strings"
@@ -16,9 +16,9 @@ import (
 var cfg = config.Config{}
 
 var rootCmd = &cobra.Command{
-	Use:   "grader",
-	Short: "Start grader service",
-	Long:  `Grader grader service`,
+	Use:   "queue",
+	Short: "Start queue service",
+	Long:  `Grader queue service`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logger.CheckErr(cmd.Help())
 	},
@@ -50,11 +50,10 @@ func initDotEnv() {
 func initConfig() {
 	viper.SetConfigType("toml")
 	var defaultConfig = []byte(`
-[server]
-listen="localhost:8090"
-timeout_read="5s"
-timeout_write="5s"
-timeout_idle="1m"
+[app]
+topic_name="grader-submissions"
+[amqp]
+dsn=""
 [log]
 verbose=0
 pretty=0
