@@ -1,0 +1,32 @@
+{{define "title"}}Admin - Assessments{{end}}
+{{define "content"}}
+
+<p>
+    <a class="btn btn-primary" href="/app/admin/assessments/create">Create</a>
+</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Created At</th>
+        <th scope="col">Part ID</th>
+        <th scope="col">Container Image</th>
+        <th scope="col">Summary</th>
+        <th scope="col">File Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .Models}}
+        <tr>
+            <th scope="row"><a href="/app/submit/{{.ID}}">{{.ID}}</a></th>
+            <td>{{.CreatedAt}}</td>
+            <td>{{.PartID}}</td>
+            <td>{{.ContainerImage}}</td>
+            <td>{{.Summary}}</td>
+            <td>{{.FileName}}</td>
+        </tr>
+    {{end}}
+    </tbody>
+    {{end}}
+</table>

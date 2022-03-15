@@ -1,0 +1,24 @@
+{{define "title"}}Admin - Assessments - Create{{end}}
+{{define "content"}}
+
+    <form method="post" autocomplete="off">
+        <div class="form-group">
+            <label for="part_id">Part ID</label>
+            <input name="part_id" type="text" class="form-control" id="part_id">
+        </div>
+        <div class="form-group">
+            <label for="container_image">Container Image</label>
+            <input name="container_image" type="text" class="form-control" id="container_image">
+        </div>
+        <div class="form-group">
+            <label for="summary">Summary</label>
+            <input name="summary" type="text" class="form-control" id="summary">
+        </div>
+        <div class="form-group">
+            <label for="file_name">File Name</label>
+            <input name="file_name" type="text" class="form-control" id="file_name">
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+
+{{end}}

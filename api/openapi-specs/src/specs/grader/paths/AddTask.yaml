@@ -1,0 +1,54 @@
+Endpoint:
+  post:
+    tags:
+      - Submission
+    summary: Create new grader submissions
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/Request'
+    responses:
+      200:
+        allOf:
+          - $ref: '../../common/responses.yaml#/OkResponse'
+          - content:
+              application/json:
+                schema:
+                  properties:
+                    data:
+                      $ref: '#/Response'
+Request:
+  type: object
+  properties:
+    submission:
+      $ref: '#/Submission'
+Submission:
+  type: object
+  properties:
+    container_image:
+      type: string
+      example: "yarcode/grader:latest"
+    part_id:
+      type: string
+      example: "hw1"
+    postback_url:
+      type: string
+    files:
+      type: array
+      items:
+        $ref: '#/SubmissionFile'
+SubmissionFile:
+  properties:
+    name:
+      type: string
+      example: "foo.go"
+    url:
+      type: string
+      example: "https://example.com/foo.go"
+
+Response:
+  properties:
+    task_id:
+      type: string
+      format: uuid

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+
+    <title>{{template "title"}}</title>
+
+    <link rel="canonical" href="/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/template.css" rel="stylesheet">
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerMain"
+            aria-controls="navbarTogglerMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="/app">Grader</a>
+
+    {{if .Authorized }}
+    <div class="collapse navbar-collapse" id="navbarTogglerMain">
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+            {{if .CurrentUser.IsAdmin}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/app/admin/submissions">Admin Submission</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/app/admin/assessments">Admin Assessments</a>
+                </li>
+            {{end}}
+            <li class="nav-item">
+                <a class="nav-link" href="/app/user/logout">Logout ({{.CurrentUser.Name}})</a>
+            </li>
+        </ul>
+    </div>
+    {{end}}
+
+    {{if not .Authorized }}
+        <div class="collapse navbar-collapse" id="navbarTogglerMain">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/app/user/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/app/user/register">Registration</a>
+                </li>
+            </ul>
+        </div>
+    {{end}}
+</nav>
+
+<main role="main" class="container">
+
+    {{template "content" .}}
+
+</main><!-- /.container -->
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="/static/js/bootstrap.js"></script>
+</body>
+</html>

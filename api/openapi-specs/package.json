@@ -1,0 +1,26 @@
+{
+  "name": "grader-oas3",
+  "version": "0.0.1",
+  "description": "OAS3 for Grader API",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack-dev-server --open"
+  },
+  "author": "Alexey Samoylov",
+  "license": "Proprietary",
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^10.0.0",
+    "css-loader": "^6.5.1",
+    "html-webpack-plugin": "^5.5.0",
+    "json-loader": "^0.5.7",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0",
+    "yaml-loader": "^0.6.0"
+  },
+  "dependencies": {
+    "swagger-ui": "^4.1.2"
+  }
+}

@@ -1,0 +1,21 @@
+openapi: "3.0.0"
+info:
+  title: Grader API
+  version: 0.0.1
+  contact:
+    name: Alexey Samoylov
+    email: alexey.samoylov@gmail.com
+servers:
+  - url: http://localhost:8021/api/v1/grader
+    description: Grader Dev Server
+#components:
+#  securitySchemes:
+#    bearerAuth:
+#      type: http
+#      scheme: bearer
+#      bearerFormat: JWT
+#security:
+#  - bearerAuth: []
+paths:
+  /:
+    $ref: './paths/AddTask.yaml#/Endpoint'

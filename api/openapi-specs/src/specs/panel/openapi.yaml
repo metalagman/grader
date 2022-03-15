@@ -1,0 +1,23 @@
+openapi: "3.0.0"
+info:
+  title: Panel API
+  version: 0.0.1
+  contact:
+    name: Alexey Samoylov
+    email: alexey.samoylov@gmail.com
+servers:
+  - url: http://localhost:8021/api/v1/panel
+    description: Panel Dev Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    $ref: './paths/auth/Login.yaml#/Endpoint'
+  /auth/register:
+    $ref: './paths/auth/Register.yaml#/Endpoint'
